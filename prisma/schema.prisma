@@ -12,3 +12,60 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model House {
+  id                 String      @id @unique @default(uuid())
+  housename          String
+  description        String
+  number_of_bedrooms Int
+  county             String
+  subcounty          String
+  ward               String
+  size               Int
+  bathrooms          Int
+  bedrooms           Int
+  num_of_units       Int
+  floors             Int
+  structure          String
+  longitude          Decimal
+  latitude           Decimal
+  images             String[]
+  status             String
+  units              HouseUnit[]
+  created_at         DateTime    @default(now())
+  updated_at         DateTime    @updatedAt
+}
+
+model HouseUnit {
+  id          String   @id @unique @default(uuid())
+  house_id    String?
+  house       House?   @relation(fields: [house_id], references: [id])
+  bedrooms    Int
+  bathrooms   Int
+  rent_amount Int
+  occupied    Boolean
+  tenant_id   String?  @unique
+  tenant      User?    @relation(fields: [tenant_id], references: [id])
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model User {
+  id          String     @id @unique @default(uuid())
+  username    String
+  first_name  String
+  last_name   String
+  national_id String
+  password    String?
+  phone       String?
+  email       String
+  gender      String
+  department  String
+  status      String
+  office      String
+  roles       String[]
+  house_unit  HouseUnit?
+  created_by  String
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+}

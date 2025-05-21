@@ -1,34 +1,35 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { HouseService } from './house.service';
 import { CreateHouseDto } from './dto/create-house.dto';
 import { UpdateHouseDto } from './dto/update-house.dto';
+import { PaginationQueryDto } from 'src/common/pagination/paginationQuery.dto';
 
-@Controller('house')
+@Controller('houses')
 export class HouseController {
   constructor(private readonly houseService: HouseService) {}
 
-  @Post()
+  @Post('create_house')
   create(@Body() createHouseDto: CreateHouseDto) {
     return this.houseService.create(createHouseDto);
   }
 
-  @Get()
-  findAll() {
-    return this.houseService.findAll();
+  @Get('get_houses')
+  getAllHouses(@Query() paginationQueryDto: PaginationQueryDto) {
+    return this.houseService.getAllHouses(paginationQueryDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.houseService.findOne(+id);
+  findHouseById(@Param('id') id: string) {
+    return this.houseService.findHouseById(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateHouseDto: UpdateHouseDto) {
-    return this.houseService.update(+id, updateHouseDto);
+  updateHouse(@Param('id') id: string, @Body() updateHouseDto: UpdateHouseDto) {
+    return this.houseService.updateHouse(id, updateHouseDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.houseService.remove(+id);
+  removeHouse(@Param('id') id: string) {
+    return this.houseService.removeHouse(id);
   }
 }

@@ -1,26 +1,68 @@
 import { Injectable } from '@nestjs/common';
 import { CreateHouseDto } from './dto/create-house.dto';
 import { UpdateHouseDto } from './dto/update-house.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { paginate } from 'src/common/pagination/paginate';
+import { PaginationQueryDto } from 'src/common/pagination/paginationQuery.dto';
 
 @Injectable()
 export class HouseService {
-  create(createHouseDto: CreateHouseDto) {
-    return 'This action adds a new house';
+  constructor(private readonly prisma: PrismaService){}
+  async create(createHouseDto: CreateHouseDto) {
+    const house =  await this.prisma.house.create({
+     data: {
+      ...createHouseDto
+     }
+    })
+    return house
   }
 
-  findAll() {
-    return `This action returns all house`;
+
+
+ async  getAllHouses({limit, page}: PaginationQueryDto) {
+  const totalhouses = await this.prisma.house.count()
+  const url =  `house/get_houses`
+  const pagination = paginate(totalhouses, page, limit, url)
+
+  if(!limit) limit = 10
+  if(!page) page = 1
+ 
+  const houses = await this.prisma.house.findMany({
+    skip: Number(page),
+    take: Number(limit)
+  })
+
+  console.log("Pagination Query: ", limit, page)
+    return {
+      data: houses,
+      ...pagination
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} house`;
+  async findHouseById(id: string) {
+    const house = await this.prisma.house.findUnique({
+      where: {id}
+    })
+    return house
   }
 
-  update(id: number, updateHouseDto: UpdateHouseDto) {
-    return `This action updates a #${id} house`;
+ async  updateHouse(id: string, updateHouseDto: UpdateHouseDto) {
+  const updatedHouse = await this.prisma.house.update({
+    where: {id},
+    data: {
+      ...updateHouseDto
+    }
+  })
+    return updatedHouse;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} house`;
+  async removeHouse(id: string) {
+    const house = await this.prisma.house.delete({
+      where: {id}
+    })
+    return  {
+      message: "House deleted succesifully",
+      data: house
+    }
   }
 }
